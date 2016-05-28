@@ -18,7 +18,6 @@ def getSingleCardDescription(cardNumber):
     return getRankDescription(getRank(cardNumber))
 
 def getRank(cardNumber):
-#return intval(floor(cardNumber / NUMBER_OF_SUITS))
     return math.floor(cardNumber / 4)
 
 def getRankDescription(cardNumber):
