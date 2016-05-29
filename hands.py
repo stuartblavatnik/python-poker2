@@ -43,7 +43,7 @@ class Hands:
 
         multiple = False
         rankKeys = Counter(ranks).keys()
-        rankValues = Counter(ranks).values()
+        rankValues = list(Counter(ranks).values())
         self.pairs = []
 
         arrayCount = len(rankKeys)
@@ -51,12 +51,12 @@ class Hands:
         for i in range(0, arrayCount):
             if (rankValues[i] > 1):
                 multiple = True
-                if (rankValues == 2):
-                    self.pairs.append(rankKeys[i])
-                elif (rankValues == 3):
-                    self.threeOfAKind = rankKeys[i]
-                elif (rankValues == 4):
-                    self.fourOfAKind = rankKeys[i]
+                if (rankValues[i] == 2):
+                    self.pairs.append(list(rankKeys)[i])
+                elif (rankValues[i] == 3):
+                    self.threeOfAKind = list(rankKeys)[i]
+                elif (rankValues[i] == 4):
+                    self.fourOfAKind = list(rankKeys)[i]
         return multiple
 
     def parse(self):
@@ -73,7 +73,7 @@ class Hands:
         suits = []
         ranks = []
 
-        for card in cards:
+        for card in self.cards:
             suits.append(cards.getSuit(card))
             ranks.append(cards.getRank(card))
 
@@ -98,15 +98,6 @@ class Hands:
                 HandDescription.description = STRAIGHT_FLUSH
                 HandDescription.extraDescription = highCardDescription
                 HandDescription.extra = highCard
-            elif self.fourOfAKind is not None:
-                HandDescription.description = FOUR_OF_A_KIND
-                HandDescription.extraDescription = cards.getPluralRankDescription(self.fourOfAKind)
-                HandDescription.extra = self.fourOfAKind
-            elif self.threeOfAKind is not None and self.pairs is not None:
-                HandDescription.description = FULL_HOUSE
-                HandDescription.extraDescription = cards.getPluralRankDescription(self.threeOfAKind) + " over " + \
-                                                   cards.getPluralRankDescription(self.pairs[0])
-                HandDescription.extra = self.threeOfAKind
             elif flush is not None:
                 HandDescription.description = FLUSH
                 HandDescription.extraDescription = highCardDescription
@@ -115,24 +106,34 @@ class Hands:
                 HandDescription.description = STRAIGHT
                 HandDescription.extraDescription = highCardDescription
                 HandDescription.extra = highCard
-            elif self.threeOfAKind is not None:
-                HandDescription.description = THREE_OF_A_KIND
-                HandDescription.extraDescription = cards.getPluralRankDescription(self.threeOfAKind)
-                HandDescription.extra = self.threeOfAKind
-            elif self.pairs is not None and len(self.pairs) == 2:
-                self.pairs.sort()
-                HandDescription.description = TWO_PAIR
-                HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
-                    cards.getPluralRankDescription(self.pairs[0])
-                HandDescription.extra = self.pairs[1] + " " + self.pairs[0]
-            elif self.pairs is not None:
-                HandDescription.description = PAIR
-                HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[0])
-                HandDescription.extra = self.pairs[0]
             else:
                 HandDescription.description = HIGH_CARD
                 HandDescription.extraDescription = highCardDescription
                 HandDescription.extra = highCard
+
+        elif self.fourOfAKind is not None:
+            HandDescription.description = FOUR_OF_A_KIND
+            HandDescription.extraDescription = cards.getPluralRankDescription(self.fourOfAKind)
+            HandDescription.extra = self.fourOfAKind
+        elif self.threeOfAKind is not None and len(self.pairs) == 1:
+            HandDescription.description = FULL_HOUSE
+            HandDescription.extraDescription = cards.getPluralRankDescription(self.threeOfAKind) + " over " + \
+                                               cards.getPluralRankDescription(self.pairs[0])
+            HandDescription.extra = self.threeOfAKind
+        elif self.threeOfAKind is not None:
+            HandDescription.description = THREE_OF_A_KIND
+            HandDescription.extraDescription = cards.getPluralRankDescription(self.threeOfAKind)
+            HandDescription.extra = self.threeOfAKind
+        elif self.pairs is not None and len(self.pairs) == 2:
+            self.pairs.sort()
+            HandDescription.description = TWO_PAIR
+            HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
+                cards.getPluralRankDescription(self.pairs[0])
+            HandDescription.extra = self.pairs[1] + " " + self.pairs[0]
+        elif self.pairs is not None:
+            HandDescription.description = PAIR
+            HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[0])
+            HandDescription.extra = self.pairs[0]
 
         return HandDescription
 
