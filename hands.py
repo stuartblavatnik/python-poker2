@@ -129,7 +129,7 @@ class Hands:
             HandDescription.description = TWO_PAIR
             HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
                 cards.getPluralRankDescription(self.pairs[0])
-            HandDescription.extra = self.pairs[1] + " " + self.pairs[0]
+            HandDescription.extra = str(self.pairs[1]) + " " + str(self.pairs[0])
         elif self.pairs is not None:
             HandDescription.description = PAIR
             HandDescription.extraDescription = cards.getPluralRankDescription(self.pairs[0])
