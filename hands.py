@@ -25,7 +25,7 @@ STRAIGHT_FLUSH_DESC = " Straight flush"
 
 class Hands:
     cards = []
-    type = ""
+    __type = ""
     threeOfAKind = None
     fourOfAKind = None
     pairs = []
@@ -33,7 +33,10 @@ class Hands:
 
     def __init__(self, _cards):
         self.cards = _cards
-        self.type = self.parse()
+        self.__type = self.parse()
+
+    def get_type(self):
+        return self.__type;
 
     #    def compare(self, other):
 
@@ -75,7 +78,7 @@ class Hands:
 
     def parse(self):
 
-        hand_description = namedtuple('HandDescription', 'description extraDescription extra')
+        hand_description = namedtuple('HandDescription', 'type extra_description extra')
 
         multiple = False
         flush = False
@@ -105,78 +108,86 @@ class Hands:
             straight = self.__is_straight(ranks)
 
             if straight and flush:
-                hand_description.description = STRAIGHT_FLUSH
+                hand_description.type = STRAIGHT_FLUSH
 
                 if self.baby_straight:
-                    hand_description.extraDescription = "Five High"
+                    hand_description.extra_description = "Five High"
                     hand_description.extra = self.cards[3]
                 else:
-                    hand_description.extraDescription = high_card_description
+                    hand_description.extra_description = high_card_description
                     hand_description.extra = high_card
             elif flush:
-                hand_description.description = FLUSH
-                hand_description.extraDescription = high_card_description
+                hand_description.type = FLUSH
+                hand_description.extra_description = high_card_description
                 hand_description.extra = high_card
             elif straight:
-                hand_description.description = STRAIGHT
+                hand_description.type = STRAIGHT
 
                 if self.baby_straight:
-                    hand_description.extraDescription = "Five High"
+                    hand_description.extra_description = "Five High"
                     hand_description.extra = self.cards[3]
                 else:
-                    hand_description.extraDescription = high_card_description
+                    hand_description.extra_description = high_card_description
                     hand_description.extra = high_card
             else:
-                hand_description.description = HIGH_CARD
-                hand_description.extraDescription = high_card_description
+                hand_description.type = HIGH_CARD
+                hand_description.extra_description = high_card_description
                 hand_description.extra = high_card
 
         elif self.fourOfAKind is not None:
-            hand_description.description = FOUR_OF_A_KIND
-            hand_description.extraDescription = cards.getPluralRankDescription(self.fourOfAKind)
+            hand_description.type = FOUR_OF_A_KIND
+            hand_description.extra_description = cards.getPluralRankDescription(self.fourOfAKind)
             hand_description.extra = self.fourOfAKind
         elif self.threeOfAKind is not None and len(self.pairs) == 1:
-            hand_description.description = FULL_HOUSE
-            hand_description.extraDescription = cards.getPluralRankDescription(self.threeOfAKind) + " over " + \
+            hand_description.type = FULL_HOUSE
+            hand_description.extra_description = cards.getPluralRankDescription(self.threeOfAKind) + " over " + \
                                                 cards.getPluralRankDescription(self.pairs[0])
             hand_description.extra = self.threeOfAKind
         elif self.threeOfAKind is not None:
-            hand_description.description = THREE_OF_A_KIND
-            hand_description.extraDescription = cards.getPluralRankDescription(self.threeOfAKind)
+            hand_description.type = THREE_OF_A_KIND
+            hand_description.extra_description = cards.getPluralRankDescription(self.threeOfAKind)
             hand_description.extra = self.threeOfAKind
         elif self.pairs is not None and len(self.pairs) == 2:
             self.pairs.sort()
-            hand_description.description = TWO_PAIR
-            hand_description.extraDescription = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
+            hand_description.type = TWO_PAIR
+            hand_description.extra_description = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
                                                 cards.getPluralRankDescription(self.pairs[0])
             hand_description.extra = str(self.pairs[1]) + " " + str(self.pairs[0])
         elif self.pairs is not None:
-            hand_description.description = PAIR
-            hand_description.extraDescription = cards.getPluralRankDescription(self.pairs[0])
+            hand_description.type = PAIR
+            hand_description.extra_description = cards.getPluralRankDescription(self.pairs[0])
             hand_description.extra = self.pairs[0]
+        else:
+            hand_description.type = HIGH_CARD
+            hand_description.extra_description = high_card_description
+            hand_description.extra = high_card
 
         return hand_description
 
-    def get_description(self, handType, extra):
+    def get_description(self):
 
-        if handType == STRAIGHT_FLUSH:
+        hand_type = self.__type.type
+        extra_description = self.__type.extra_description
+        extra = self.__type.extra
+
+        if hand_type == STRAIGHT_FLUSH:
             description = extra + STRAIGHT_FLUSH_DESC
-        elif handType == FOUR_OF_A_KIND:
+        elif hand_type == FOUR_OF_A_KIND:
             description = FOUR_OF_A_KIND_DESC + extra
-        elif handType == FULL_HOUSE:
+        elif hand_type == FULL_HOUSE:
             description = FULL_HOUSE_DESC + extra
-        elif handType == FLUSH:
-            description = extra + FLUSH_DESC
-        elif handType == STRAIGHT:
-            description = extra + STRIGHT_DESC
-        elif handType == THREE_OF_A_KIND:
-            description = THREE_OF_A_KIND_DESC + extra
-        elif handType == TWO_PAIR:
-            description = TWO_PAIR_DESC + extra
-        elif handType == PAIR:
-            description = PAIR_DESC + extra
-        elif handType == HIGH_CARD:
-            description = extra
+        elif hand_type == FLUSH:
+            description = extra_description + FLUSH_DESC
+        elif hand_type == STRAIGHT:
+            description = extra_description + STRIGHT_DESC
+        elif hand_type == THREE_OF_A_KIND:
+            description = THREE_OF_A_KIND_DESC + extra_description
+        elif hand_type == TWO_PAIR:
+            description = TWO_PAIR_DESC + extra_description
+        elif hand_type == PAIR:
+            description = PAIR_DESC + extra_description
+        elif hand_type == HIGH_CARD:
+            description = extra_description
 
         return description
 
