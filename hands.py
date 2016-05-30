@@ -31,39 +31,49 @@ class Hands:
     fourOfAKind = None
     pairs = []
 
-
-
     def __init__(self, cards):
         self.cards = cards
         self.type = self.parse()
 
 #    def compare(self, other):
 
-    def __buildMultiples(self, ranks):
+    def __build_multiples(self, ranks):
 
         multiple = False
-        rankKeys = Counter(ranks).keys()
+        rank_keys = Counter(ranks).keys()
         rankValues = list(Counter(ranks).values())
         self.pairs = []
 
-        arrayCount = len(rankKeys)
+        arrayCount = len(rank_keys)
 
         for i in range(0, arrayCount):
             if (rankValues[i] > 1):
                 multiple = True
                 if (rankValues[i] == 2):
-                    self.pairs.append(list(rankKeys)[i])
+                    self.pairs.append(list(rank_keys)[i])
                 elif (rankValues[i] == 3):
-                    self.threeOfAKind = list(rankKeys)[i]
+                    self.threeOfAKind = list(rank_keys)[i]
                 elif (rankValues[i] == 4):
-                    self.fourOfAKind = list(rankKeys)[i]
+                    self.fourOfAKind = list(rank_keys)[i]
         return multiple
+
+    def __is_straight(self, ranks):
+
+        straight = False
+
+        rank_keys = Counter(ranks).keys()
+
+        if len(rank_keys) == 5 and list(rank_keys)[4] - list(rank_keys)[0] == 4:
+            straight = True
+
+        return straight
 
     def parse(self):
 
         HandDescription = namedtuple('HandDescription', 'description extraDescription extra')
 
         multiple = False
+        flush = False
 
         self.cards.sort()
         highCard = self.cards[-1]
@@ -77,28 +87,24 @@ class Hands:
             suits.append(cards.getSuit(card))
             ranks.append(cards.getRank(card))
 
+        #Normalize suits to get the count of different suits in the hand
+        suits = list(set(suits))
+
         if len(suits) == 1:
             flush = True
             flushType = suits[0]
         else :
-            multiple = self.__buildMultiples(ranks)
+            multiple = self.__build_multiples(ranks)
 
         if not multiple :
-            '''
-            Check for Straight -- Since the hand is sorted and we know that there
-                                are no duplicates then the difference of the low
-                                to the high card would be 4 -- for the case of 5
-                                card hands
-            '''
 
-            if cards[4] - cards[0] == 4:
-                straight = True
+            straight = self.__is_straight(ranks)
 
             if straight == True and flush == True:
                 HandDescription.description = STRAIGHT_FLUSH
                 HandDescription.extraDescription = highCardDescription
                 HandDescription.extra = highCard
-            elif flush is not None:
+            elif flush == True:
                 HandDescription.description = FLUSH
                 HandDescription.extraDescription = highCardDescription
                 HandDescription.extra = highCard
@@ -136,6 +142,8 @@ class Hands:
             HandDescription.extra = self.pairs[0]
 
         return HandDescription
+
+
 
     def getdescription(self, handType, extra):
 

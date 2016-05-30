@@ -31,11 +31,23 @@ class TestHands(TestCase):
         self.doParseTest([0, 1, 4, 5, 40], hands.TWO_PAIR, "Threes over Twos", "1 0")
         self.doParseTest([4, 48, 49, 5, 27], hands.TWO_PAIR, "Aces over Threes", "12 1")
 
-
     def test_parse_pair(self):
         self.doParseTest([40, 0, 18, 51, 1], hands.PAIR, "Twos", 0)
+        self.doParseTest([47, 0, 18, 51, 46], hands.PAIR, "Kings", 11)
+
+    def test_parse_flush(self):
+        self.doParseTest([0, 4, 8, 16, 32], hands.FLUSH, "Ten High", 32)
+        self.doParseTest([37, 9, 17, 5, 1], hands.FLUSH, "Jack High", 37)
+
+    def test_parse_straight(self):
+        self.doParseTest([0, 5, 8, 12, 16], hands.STRAIGHT, "Six High", 16)
+        self.doParseTest([16, 5, 22, 8, 12], hands.STRAIGHT, "Seven High", 22)
+        self.doParseTest([51, 46, 42, 38, 34], hands.STRAIGHT, "Ace High", 51)
+        self.doParseTest([51, 0, 4, 8, 12], hands.STRAIGHT, "Five High", 12)
 
 
+    def test_parse_straight_flush(self):
+        self.doParseTest([0, 4, 8, 12, 16], hands.STRAIGHT_FLUSH, "Six High", 16)
 
 '''
     def test_getdescription(self):
