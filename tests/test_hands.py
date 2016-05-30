@@ -81,6 +81,19 @@ class TestHands(TestCase):
         self.__do_get_description_test([0, 4, 8, 16, 32], "Ten High Flush")
         self.__do_get_description_test([37, 9, 17, 5, 1], "Jack High Flush")
 
+    def test_parse_description_full_house(self):
+        self.__do_get_description_test([0, 1, 2, 51, 50], "Full house Twos over Aces")
+        self.__do_get_description_test([22, 4, 5, 6, 23], "Full house Threes over Sevens")
+
+    def test_parse_description_four_of_a_kind(self):
+        self.__do_get_description_test([0, 1, 2, 3, 4], "Four Twos")
+        self.__do_get_description_test([48, 49, 50, 51, 4], "Four Aces")
+
+    def test_parse_description_straight_flush(self):
+        self.__do_get_description_test([0, 4, 8, 12, 16], "Six High Straight flush")
+        self.__do_get_description_test([51, 47, 43, 39, 35], "Ace High Straight flush")
+        self.__do_get_description_test([51, 3, 7, 11, 15], "Five High Straight flush")
+
 '''
     def test_getRanks(self):
         self.fail()

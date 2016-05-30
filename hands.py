@@ -168,14 +168,13 @@ class Hands:
 
         hand_type = self.__type.type
         extra_description = self.__type.extra_description
-        extra = self.__type.extra
 
         if hand_type == STRAIGHT_FLUSH:
-            description = extra + STRAIGHT_FLUSH_DESC
+            description = extra_description + STRAIGHT_FLUSH_DESC
         elif hand_type == FOUR_OF_A_KIND:
-            description = FOUR_OF_A_KIND_DESC + extra
+            description = FOUR_OF_A_KIND_DESC + extra_description
         elif hand_type == FULL_HOUSE:
-            description = FULL_HOUSE_DESC + extra
+            description = FULL_HOUSE_DESC + extra_description
         elif hand_type == FLUSH:
             description = extra_description + FLUSH_DESC
         elif hand_type == STRAIGHT:
