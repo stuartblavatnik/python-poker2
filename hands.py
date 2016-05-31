@@ -230,10 +230,10 @@ class Hands:
         self_ranks.sort()
         other_ranks.sort()
 
-        for i in (0, len(self_ranks)):
-            if self_ranks[i] > other_ranks:
+        for i in range(0, len(self_ranks)):
+            if self_ranks[i] > other_ranks[i]:
                 return 1
-            elif self_ranks[i] < other_ranks:
+            elif self_ranks[i] < other_ranks[i]:
                 return -1
 
         return 0
@@ -249,7 +249,7 @@ class Hands:
         elif self.get_pairs()[1] < other.get_pairs()[1]:
             return -1
         else:
-            return self.__compare_hands_by_individual_values(self, other)
+            return self.__compare_hands_by_individual_values(other)
 
     def __compare_one_pair_hands(self, other):
         if self.get_pairs()[0] > other.get_pairs()[0]:
@@ -257,7 +257,7 @@ class Hands:
         elif self.get_pairs()[0] < other.get_pairs()[0]:
             return -1
         else:
-            return self.__compare_hands_by_individual_values(self, other)
+            return self.__compare_hands_by_individual_values(other)
 
     '''
        Compares two hands.  If the hand passed in is better than this hand, -1 is retured.  If the opposite 1 is returned.
@@ -272,51 +272,12 @@ class Hands:
         else:
             hand_type = self.get_type()
             if hand_type in [STRAIGHT_FLUSH, FLUSH, STRAIGHT, HIGH_CARD]:
-                compare_results = self.__compare_hands_by_individual_values(self, other)
+                compare_results = self.__compare_hands_by_individual_values(other)
             elif hand_type in [FOUR_OF_A_KIND, FULL_HOUSE, THREE_OF_A_KIND]:
                 compare_results = False
             elif hand_type == TWO_PAIR:
-                compare_results = self.__compare_two_pair_hands(self, other)
+                compare_results = self.__compare_two_pair_hands(other)
             elif hand_type == PAIR:
-                compare_results = self.__compare_one_pair_hands(self, other)
+                compare_results = self.__compare_one_pair_hands(other)
 
         return compare_results
-
-
-
-
-'''
-# todo implement these
-    def __gt__(self, other):
-        if self.get_type() != other.get_type():
-            return self.get_type() > other.get_type()
-
-    def __lt__(self, other):
-        if self.get_type() != other.get_type():
-            return self.get_type() < other.get_type()
-
-    def __eq__(self, other):
-
-        is_equal = False;
-
-        if self.get_type() == other.get_type():
-            hand_type = self.get_type()
-            if hand_type in [STRAIGHT_FLUSH, FLUSH, STRAIGHT, HIGH_CARD]:
-                is_equal = self.__compare_hands_by_individual_values(self, other)
-            elif hand_type in [FOUR_OF_A_KIND, FULL_HOUSE, THREE_OF_A_KIND]:
-                is_equal = False
-            elif hand_type == TWO_PAIR:
-                # todo Implement
-                is_equal == self.__compare_two_pair_hands(self, other)
-            elif hand_type == PAIR:
-                # todo Implement
-                is_equal == self.__compare_one_pair_hands(self, other)
-
-        return is_equal
-
-
-'''
-
-
-
-

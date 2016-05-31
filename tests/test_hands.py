@@ -127,9 +127,24 @@ class TestHands(TestCase):
         self.assertEquals(hand3.compare(hand4), expected_result * -1)
 
     def test_compare(self):
+
         # Four of a kind vs. pair
         self.__do_test_compare([0, 1, 2, 3, 4], [40, 0, 18, 51, 1], 1)
         # Four of a kind vs Straight Flush
         self.__do_test_compare([0, 1, 2, 3, 4], [51, 3, 7, 11, 15], -1)
         # Full House vs Three of a kind
         self.__do_test_compare([22, 4, 5, 6, 23], [4, 5, 6, 18, 30], 1)
+        # Ace high vs. King High
+        self.__do_test_compare([40, 0, 18, 51, 27], [47, 0, 18, 10, 26], 1)
+        # Two pairs Threes over Twos vs. Aces over Threes
+        self.__do_test_compare([0, 1, 4, 5, 40], [4, 48, 49, 5, 27], -1)
+        # Two pairs Threes over Twos and an ace vs. Threes over Twos with a king
+        self.__do_test_compare([0, 1, 4, 5, 40], [4, 48, 49, 5, 27], -1)
+        # Two pairs Threes over Twos and an ace vs. Threes over Twos with an ace
+        self.__do_test_compare([0, 1, 4, 5, 50], [2, 3, 7, 6, 49], 0)
+        # Pair of twos vs pair of kings
+        self.__do_test_compare([40, 0, 18, 51, 1], [47, 0, 18, 51, 46], -1)
+        # Pairs of twos vs. pair of twos with different other cards
+        self.__do_test_compare([40, 0, 18, 51, 1], [2, 3, 19, 50, 46], -1)
+        # Pairs of twos vs. pair of twos with same cards
+        self.__do_test_compare([40, 0, 18, 51, 1], [2, 3, 19, 50, 41], 0)
