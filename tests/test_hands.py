@@ -6,15 +6,13 @@ class TestHands(TestCase):
     def __do_parse_test(self, cards, expected_type, expected_extra_description, expected_extra):
 
         hand = hands.Hands(cards)
-        hand_description_tuple = hand.get_type()
+        hand_type = hand.get_type()
+        hand_extra_description = hand.get_extra_description()
+        hand_extra = hand.get_extra()
 
-        self.assertEquals(expected_type, hand_description_tuple.type)
-        self.assertEquals(expected_extra_description, hand_description_tuple.extra_description)
-        self.assertEquals(expected_extra, hand_description_tuple.extra)
-
-    def __do_get_description_test(self, cards, expected_type):
-        hand = hands.Hands(cards)
-        self.assertEquals(expected_type, hand.get_description())
+        self.assertEquals(expected_type, hand_type)
+        self.assertEquals(expected_extra_description, hand_extra_description)
+        self.assertEquals(expected_extra, hand_extra)
 
     def test_parse_high_card(self):
         self.__do_parse_test([40, 0, 18, 51, 27], hands.HIGH_CARD, "Ace High", 51)
@@ -55,6 +53,10 @@ class TestHands(TestCase):
         self.__do_parse_test([51, 47, 43, 39, 35], hands.STRAIGHT_FLUSH, "Ace High", 51)
         self.__do_parse_test([51, 3, 7, 11, 15], hands.STRAIGHT_FLUSH, "Five High", 15)
 
+    def __do_get_description_test(self, cards, expected_type):
+        hand = hands.Hands(cards)
+        self.assertEquals(expected_type, hand.get_description())
+
     def test_parse_description_high_card(self):
         self.__do_get_description_test([40, 0, 18, 51, 27], "Ace High")
         self.__do_get_description_test([47, 0, 18, 10, 26], "King High")
@@ -94,10 +96,40 @@ class TestHands(TestCase):
         self.__do_get_description_test([51, 47, 43, 39, 35], "Ace High Straight flush")
         self.__do_get_description_test([51, 3, 7, 11, 15], "Five High Straight flush")
 
-'''
-    def test_getRanks(self):
-        self.fail()
+    def __do_get_ranks_test(self, cards, expected_type):
+        hand = hands.Hands(cards)
+        self.assertEquals(expected_type, hand.get_ranks())
+
+    def test_get_ranks(self):
+        self.__do_get_ranks_test([0, 4, 8, 12, 16], [0, 1, 2, 3, 4])
+        self.__do_get_ranks_test([12, 16, 8, 0, 4], [0, 1, 2, 3, 4])
+        self.__do_get_ranks_test([51, 47, 43, 39, 35], [8, 9, 10, 11, 12])
+
+    def __do_test_display(self, cards, expected_display):
+        hand = hands.Hands(cards)
+        self.assertEquals(expected_display, hand.display())
 
     def test_display(self):
-        self.fail()
-'''
+        self.__do_test_display([0, 4, 8, 12, 16],
+                               "Two of Clubs\nThree of Clubs\nFour of Clubs\nFive of Clubs\nSix of Clubs\n")
+        self.__do_test_display([51, 47, 43, 39, 35],
+                               "Ten of Spades\nJack of Spades\nQueen of Spades\nKing of Spades\nAce of Spades\n")
+
+    def __do_test_compare(self, cards1, cards2, expected_result):
+        hand1 = hands.Hands(cards1)
+        hand2 = hands.Hands(cards2)
+
+        self.assertEquals(hand1.compare(hand2), expected_result)
+
+        # Reverse
+        hand3 = hands.Hands(cards2)
+        hand4 = hands.Hands(cards1)
+        self.assertEquals(hand3.compare(hand4), expected_result * -1)
+
+    def test_compare(self):
+        # Four of a kind vs. pair
+        self.__do_test_compare([0, 1, 2, 3, 4], [40, 0, 18, 51, 1], 1)
+        # Four of a kind vs Straight Flush
+        self.__do_test_compare([0, 1, 2, 3, 4], [51, 3, 7, 11, 15], -1)
+        # Full House vs Three of a kind
+        self.__do_test_compare([22, 4, 5, 6, 23], [4, 5, 6, 18, 30], 1)

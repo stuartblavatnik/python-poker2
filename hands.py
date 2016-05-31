@@ -1,6 +1,5 @@
 import cards
 from collections import Counter
-from collections import namedtuple
 
 HIGH_CARD = 0
 PAIR = 1
@@ -22,30 +21,38 @@ FULL_HOUSE_DESC = "Full house "
 FOUR_OF_A_KIND_DESC = "Four "
 STRAIGHT_FLUSH_DESC = " Straight flush"
 
-
 class Hands:
-    cards = []
-    __type = ""
-    threeOfAKind = None
-    fourOfAKind = None
-    pairs = []
-    baby_straight = False
+    __cards = []
+    __three_of_a_kind = None
+    __four_of_a_kind = None
+    __pairs = []
+    __baby_straight = False
+    __hand_type = ""
+    __hand_extra_description = ""
+    __hand_extra = ""
 
     def __init__(self, _cards):
-        self.cards = _cards
-        self.__type = self.parse()
+        self.__cards = _cards
+        self.parse()
 
     def get_type(self):
-        return self.__type;
+        return self.__hand_type;
 
-    #    def compare(self, other):
+    def get_extra_description(self):
+        return self.__hand_extra_description;
+
+    def get_extra(self):
+        return self.__hand_extra;
+
+    def get_pairs(self):
+        return self.__pairs;
 
     def __build_multiples(self, ranks):
 
         multiple = False
         rank_keys = Counter(ranks).keys()
         rank_values = list(Counter(ranks).values())
-        self.pairs = []
+        self.__pairs = []
 
         array_count = len(rank_keys)
 
@@ -53,11 +60,11 @@ class Hands:
             if rank_values[i] > 1:
                 multiple = True
                 if rank_values[i] == 2:
-                    self.pairs.append(list(rank_keys)[i])
+                    self.__pairs.append(list(rank_keys)[i])
                 elif rank_values[i] == 3:
-                    self.threeOfAKind = list(rank_keys)[i]
+                    self.__three_of_a_kind = list(rank_keys)[i]
                 elif rank_values[i] == 4:
-                    self.fourOfAKind = list(rank_keys)[i]
+                    self.__four_of_a_kind = list(rank_keys)[i]
         return multiple
 
     def __is_straight(self, ranks):
@@ -72,25 +79,23 @@ class Hands:
             elif list(rank_keys)[0] == 0 and list(rank_keys)[1] == 1 and list(rank_keys)[2] == 2 and \
                 list(rank_keys)[3] == 3 and list(rank_keys)[4] == 12:
                 straight = True
-                self.baby_straight = True
+                self.__baby_straight = True
 
         return straight
 
     def parse(self):
 
-        hand_description = namedtuple('HandDescription', 'type extra_description extra')
-
         multiple = False
         flush = False
 
-        self.cards.sort()
-        high_card = self.cards[-1]
+        self.__cards.sort()
+        high_card = self.__cards[-1]
         high_card_description = cards.getSingleCardDescription(high_card) + " " + "High"
 
         suits = []
         ranks = []
 
-        for card in self.cards:
+        for card in self.__cards:
             suits.append(cards.getSuit(card))
             ranks.append(cards.getRank(card))
 
@@ -108,66 +113,64 @@ class Hands:
             straight = self.__is_straight(ranks)
 
             if straight and flush:
-                hand_description.type = STRAIGHT_FLUSH
+                self.__hand_type = STRAIGHT_FLUSH
 
-                if self.baby_straight:
-                    hand_description.extra_description = "Five High"
-                    hand_description.extra = self.cards[3]
+                if self.__baby_straight:
+                    self.__hand_extra_description = "Five High"
+                    self.__hand_extra = self.__cards[3]
                 else:
-                    hand_description.extra_description = high_card_description
-                    hand_description.extra = high_card
+                    self.__hand_extra_description = high_card_description
+                    self.__hand_extra = high_card
             elif flush:
-                hand_description.type = FLUSH
-                hand_description.extra_description = high_card_description
-                hand_description.extra = high_card
+                self.__hand_type = FLUSH
+                self.__hand_extra_description = high_card_description
+                self.__hand_extra = high_card
             elif straight:
-                hand_description.type = STRAIGHT
+                self.__hand_type = STRAIGHT
 
-                if self.baby_straight:
-                    hand_description.extra_description = "Five High"
-                    hand_description.extra = self.cards[3]
+                if self.__baby_straight:
+                    self.__hand_extra_description = "Five High"
+                    self.__hand_extra = self.__cards[3]
                 else:
-                    hand_description.extra_description = high_card_description
-                    hand_description.extra = high_card
+                    self.__hand_extra_description = high_card_description
+                    self.__hand_extra = high_card
             else:
-                hand_description.type = HIGH_CARD
-                hand_description.extra_description = high_card_description
-                hand_description.extra = high_card
+                self.__hand_type = HIGH_CARD
+                self.__hand_extra_description = high_card_description
+                self.__hand_extra = high_card
 
-        elif self.fourOfAKind is not None:
-            hand_description.type = FOUR_OF_A_KIND
-            hand_description.extra_description = cards.getPluralRankDescription(self.fourOfAKind)
-            hand_description.extra = self.fourOfAKind
-        elif self.threeOfAKind is not None and len(self.pairs) == 1:
-            hand_description.type = FULL_HOUSE
-            hand_description.extra_description = cards.getPluralRankDescription(self.threeOfAKind) + " over " + \
-                                                cards.getPluralRankDescription(self.pairs[0])
-            hand_description.extra = self.threeOfAKind
-        elif self.threeOfAKind is not None:
-            hand_description.type = THREE_OF_A_KIND
-            hand_description.extra_description = cards.getPluralRankDescription(self.threeOfAKind)
-            hand_description.extra = self.threeOfAKind
-        elif self.pairs is not None and len(self.pairs) == 2:
-            self.pairs.sort()
-            hand_description.type = TWO_PAIR
-            hand_description.extra_description = cards.getPluralRankDescription(self.pairs[1]) + " over " + \
-                                                cards.getPluralRankDescription(self.pairs[0])
-            hand_description.extra = str(self.pairs[1]) + " " + str(self.pairs[0])
-        elif self.pairs is not None:
-            hand_description.type = PAIR
-            hand_description.extra_description = cards.getPluralRankDescription(self.pairs[0])
-            hand_description.extra = self.pairs[0]
+        elif self.__four_of_a_kind is not None:
+            self.__hand_type = FOUR_OF_A_KIND
+            self.__hand_extra_description = cards.getPluralRankDescription(self.__four_of_a_kind)
+            self.__hand_extra = self.__four_of_a_kind
+        elif self.__three_of_a_kind is not None and len(self.__pairs) == 1:
+            self.__hand_type = FULL_HOUSE
+            self.__hand_extra_description = cards.getPluralRankDescription(self.__three_of_a_kind) + " over " + \
+                                                cards.getPluralRankDescription(self.__pairs[0])
+            self.__hand_extra = self.__three_of_a_kind
+        elif self.__three_of_a_kind is not None:
+            self.__hand_type = THREE_OF_A_KIND
+            self.__hand_extra_description = cards.getPluralRankDescription(self.__three_of_a_kind)
+            self.__hand_extra = self.__three_of_a_kind
+        elif self.__pairs is not None and len(self.__pairs) == 2:
+            self.__pairs.sort()
+            self.__hand_type = TWO_PAIR
+            self.__hand_extra_description = cards.getPluralRankDescription(self.__pairs[1]) + " over " + \
+                                                cards.getPluralRankDescription(self.__pairs[0])
+            self.__hand_extra = str(self.__pairs[1]) + " " + str(self.__pairs[0])
+        elif self.__pairs is not None:
+            self.__hand_type = PAIR
+            self.__hand_extra_description = cards.getPluralRankDescription(self.__pairs[0])
+            self.__hand_extra = self.__pairs[0]
         else:
-            hand_description.type = HIGH_CARD
-            hand_description.extra_description = high_card_description
-            hand_description.extra = high_card
-
-        return hand_description
+            self.__hand_type = HIGH_CARD
+            self.__hand_extra_description = high_card_description
+            self.__hand_extra = high_card
 
     def get_description(self):
 
-        hand_type = self.__type.type
-        extra_description = self.__type.extra_description
+        hand_type = self.get_type()
+        extra_description = self.get_extra_description()
 
         if hand_type == STRAIGHT_FLUSH:
             description = extra_description + STRAIGHT_FLUSH_DESC
@@ -190,16 +193,130 @@ class Hands:
 
         return description
 
-    def getRanks(self):
+    def get_ranks(self):
 
         ranks = []
 
-        for i in 0, 5:
-            ranks.append(self.cards[i])
+        for i in range(0, 5):
+            ranks.append(cards.getRank(self.__cards[i]))
 
         return ranks
 
     def display(self):
 
-        for i in 0, 5:
-            print(cards.getCardDescription(self.cards[i]) + "\n")
+        return_display = ""
+
+        for i in range(0, 5):
+            return_display += cards.getCardDescription(self.__cards[i]) + "\n"
+
+        return return_display
+
+
+    '''
+    def compare(self, __other_hand):
+
+        comparison_result = 0;
+
+        Hands other_hand = __other_hand
+
+        if (self.type) > other_hand
+    '''
+
+    def __compare_hands_by_individual_values(self, other):
+
+        self_ranks = self.get_ranks()
+        other_ranks = other.get_ranks()
+
+        self_ranks.sort()
+        other_ranks.sort()
+
+        for i in (0, len(self_ranks)):
+            if self_ranks[i] > other_ranks:
+                return 1
+            elif self_ranks[i] < other_ranks:
+                return -1
+
+        return 0
+
+    def __compare_two_pair_hands(self, other):
+
+        if self.get_pairs()[0] > other.get_pairs()[0]:
+            return 1
+        elif self.get_pairs()[0] < other.get_pairs()[0]:
+            return -1
+        elif self.get_pairs()[1] > other.get_pairs()[1]:
+            return 1
+        elif self.get_pairs()[1] < other.get_pairs()[1]:
+            return -1
+        else:
+            return self.__compare_hands_by_individual_values(self, other)
+
+    def __compare_one_pair_hands(self, other):
+        if self.get_pairs()[0] > other.get_pairs()[0]:
+            return 1
+        elif self.get_pairs()[0] < other.get_pairs()[0]:
+            return -1
+        else:
+            return self.__compare_hands_by_individual_values(self, other)
+
+    '''
+       Compares two hands.  If the hand passed in is better than this hand, -1 is retured.  If the opposite 1 is returned.
+       If hands are equal then 0 is returned
+       '''
+    def compare(self, other):
+
+        if self.get_type() > other.get_type():
+            compare_results = 1
+        elif self.get_type() < other.get_type():
+            compare_results = -1
+        else:
+            hand_type = self.get_type()
+            if hand_type in [STRAIGHT_FLUSH, FLUSH, STRAIGHT, HIGH_CARD]:
+                compare_results = self.__compare_hands_by_individual_values(self, other)
+            elif hand_type in [FOUR_OF_A_KIND, FULL_HOUSE, THREE_OF_A_KIND]:
+                compare_results = False
+            elif hand_type == TWO_PAIR:
+                compare_results = self.__compare_two_pair_hands(self, other)
+            elif hand_type == PAIR:
+                compare_results = self.__compare_one_pair_hands(self, other)
+
+        return compare_results
+
+
+
+
+'''
+# todo implement these
+    def __gt__(self, other):
+        if self.get_type() != other.get_type():
+            return self.get_type() > other.get_type()
+
+    def __lt__(self, other):
+        if self.get_type() != other.get_type():
+            return self.get_type() < other.get_type()
+
+    def __eq__(self, other):
+
+        is_equal = False;
+
+        if self.get_type() == other.get_type():
+            hand_type = self.get_type()
+            if hand_type in [STRAIGHT_FLUSH, FLUSH, STRAIGHT, HIGH_CARD]:
+                is_equal = self.__compare_hands_by_individual_values(self, other)
+            elif hand_type in [FOUR_OF_A_KIND, FULL_HOUSE, THREE_OF_A_KIND]:
+                is_equal = False
+            elif hand_type == TWO_PAIR:
+                # todo Implement
+                is_equal == self.__compare_two_pair_hands(self, other)
+            elif hand_type == PAIR:
+                # todo Implement
+                is_equal == self.__compare_one_pair_hands(self, other)
+
+        return is_equal
+
+
+'''
+
+
+
+
